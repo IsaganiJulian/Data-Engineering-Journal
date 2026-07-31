@@ -1,0 +1,25 @@
+# Generated data — commit the generator, never the generated
+*.duckdb
+*.db
+*.sqlite
+*.parquet
+*.csv
+data/
+!**/seeds/*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Environment & secrets
+.env
+*.pem
+credentials.json
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
