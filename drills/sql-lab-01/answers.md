@@ -72,3 +72,27 @@ My reasoning for this is because the blocked_id table only shows two rows with t
 
   3) State the rule you'd give a junior teammate in one sentence, starting with "Before you aggregate across a join, ..."
   - Before you aggregate accross a join, aggregate the detail table to its grain first, then join to the fact table and aggregate there. Never sum a fact table column after joining to detail or else you will count multiple times. 
+
+## Exercise 4: Declare the grain
+**Prediction**
+customer_raw: one row per customer per updated_at
+orders: one row per order
+order_items: one row per line item?
+orders + order_items joined: one row per order per line item?
+
+1) For each, name the column set that enforces the grain.
+customer_raw: one row per customer per updated_at
+- customer_id
+- updated_at
+orders: one row per order
+- order_id
+order_items: one row per line item
+- item_id
+orders + order_items joined: one row per order per line item
+- order_id
+- item_id
+
+2) - Which of the four grains is ambiguous as stated, and what question would you have to ask a stakeholder to resolve it?
+- customer_raw is ambiguous. The grain says "one row per customer per updated_at", but customer 4 has two rows with the same customer_id AND the same updated_at (2026-02-01 08:00:00). This violates the grain.
+
+- Question for stakeholder: "When a customer has multiple updates at the exact same timestamp, should we keep both rows, or keep only one? If only one, which?"
