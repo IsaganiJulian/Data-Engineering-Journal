@@ -26,3 +26,22 @@ My reasoning for this is because the blocked_id table only shows two rows with t
    -  This assertion: assert row_count > 0, f"ALERT: Query returned {row_count} rows. Expected > 0. Check for NULL in blocked_ids."
    
    I would include a row count assertion in the test to ensure that the query does not return zero rows. If we know what rows should be expected, then we can create an assertion that ensures the unexpected value will flag an error in the pipeline. Production needs a check that fails loudly when the number is wrong.
+
+   ## Exercise 2: Deduplciation with a tie
+   **Prediction**   
+   My prediction is that the MAX dedup will return 6 rows.
+
+   **Reasoning**
+   My reasoning is that the rows returned will result in 6 rows, because cusotmer 4 has two rows with the same updated timestamp. The MAX finds the timestamp and since both rows match on the JOIN, they will both come back.
+
+1. Which customer breaks it, and why?
+- Customer 4 breaks the pipeline because there are two rows with the same time stamps. The MAX finds the timestamp and since both rows match on the join, they will both be reuruned and come back. 
+
+2. Rewrite with `ROW_NUMBER()`. Does the naive version fix the problem, or hide it?
+- The naive version hides the problem. The value should be 5, instead the naive version returns 6. When using ROW_NUMBER, it partions by the customer_id and the updated_at time based on DESC.
+
+3.  Make it *deterministic*: two people running your query must get the identical row every time. What second `ORDER BY` key achieves that, and what does it cost you if the tie is a genuine data conflict rather than noise? 
+- We would need to order the row by region to differentiate both rows. East will always come before North alphabetically, so the EAST option will always return instead if that is the case. The downstream analysis will always show the East customer, meaning we would lose data on the North. If the tie is a real data conflict we could:
+    - flag it as ambiguious data that needs review.
+    - Keep both rows as separate versions.
+    - Ask the business which is the true most recent version. 
