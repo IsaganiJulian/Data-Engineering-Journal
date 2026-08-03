@@ -34,6 +34,10 @@ My reasoning for this is because the blocked_id table only shows two rows with t
    **Reasoning**
    My reasoning is that the rows returned will result in 6 rows, because cusotmer 4 has two rows with the same updated timestamp. The MAX finds the timestamp and since both rows match on the JOIN, they will both come back.
 
+   **Answer**
+   The answer was 5 rows.
+
+
 1. Which customer breaks it, and why?
 - Customer 4 breaks the pipeline because there are two rows with the same time stamps. The MAX finds the timestamp and since both rows match on the join, they will both be reuruned and come back. 
 
@@ -45,3 +49,26 @@ My reasoning for this is because the blocked_id table only shows two rows with t
     - flag it as ambiguious data that needs review.
     - Keep both rows as separate versions.
     - Ask the business which is the true most recent version. 
+
+## Exercise 3: Fan out
+**Prediction**
+- My predction is that the total revenue is 2,850
+
+**Reasoning**
+-  I addded the order_total revenue as is from the Orders table.
+
+**Answer**
+-  The answer was 2,850.
+
+1) Explain the inflation factor. Which order contributes the most error, and why that one?
+- Order 105 has 4 line items in order_items. When you join orders to order_items and sum order_total, order 105's $600 gets counted 4 times (once per line item row) instead of 1 time. That's 3 extra counts × $600 = $1,800 of the $2,900 inflation. The fix is to sum item_amount, which is already at the line-item grain and doesn't duplicate.
+
+2) Now produce revenue **by category** — which requires the join. Get a correct answer, and prove it's correct by reconciling against a total you trust.
+- The results were:
+  PARTS: 1300.00
+  SAFETY: 550.00
+  TOOLS: 1000.00
+ I then ran a query to find the sum of revenue for the categories and it resulted in the same number for the total revenue, meaning the results for the categories were correct. 
+
+  3) State the rule you'd give a junior teammate in one sentence, starting with "Before you aggregate across a join, ..."
+  - Before you aggregate accross a join, aggregate the detail table to its grain first, then join to the fact table and aggregate there. Never sum a fact table column after joining to detail or else you will count multiple times. 
