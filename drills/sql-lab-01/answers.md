@@ -96,3 +96,13 @@ orders + order_items joined: one row per order per line item
 - customer_raw is ambiguous. The grain says "one row per customer per updated_at", but customer 4 has two rows with the same customer_id AND the same updated_at (2026-02-01 08:00:00). This violates the grain.
 
 - Question for stakeholder: "When a customer has multiple updates at the exact same timestamp, should we keep both rows, or keep only one? If only one, which?"
+
+## Exercise 5: Write the test, not just the query
+**Query**
+SELECT customer_id, count(*) AS n
+FROM <your_clean_dim>
+GROUP BY 1
+HAVING count(*) > 1;
+
+**Prediction**
+- My prediction is
